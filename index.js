@@ -1,7 +1,9 @@
 // 5 letter words accepted by the application
-import dictionary from './dictionary.json';
+//import dictionary from './dictionary.json';
 // Daily 5 letter words for the application
-import targetWords from './targetWords.json';
+//import targetWords from './targetWords.json';
+const WORD_LENGTH = 5;
+const guessGrid = document.querySelector('[data-guess-grid]');
 
 function startInteraction() {
   document.addEventListener('click', handleMouseClick);
@@ -15,7 +17,7 @@ function stopInteraction() {
 
 // handles the mouse clicking down on our virtual keyboard in our application
 function handleMouseClick(e) {
-  // key that is not enter or backspace
+  // key that is not enter oefwr backspace
   if (e.target.matches('[data-key]')) {
     pressKey(e.target.dataset.key);
     return;
@@ -26,7 +28,7 @@ function handleMouseClick(e) {
     return;
   }
   // backspace/delete key
-  if (e.target.matched('[data-delete]')) {
+  if (e.target.matches('[data-delete]')) {
     deleteKey();
     return;
   }
@@ -51,3 +53,28 @@ function handleKeyPress(e) {
     return;
   }
 }
+
+function pressKey(key) {
+  const activeTiles = getActiveTiles();
+  if (activeTiles.length >= WORD_LENGTH) return;
+  const nextTile = guessGrid.querySelector(':not([data-letter])');
+  nextTile.dataset.letter = key.toLowerCase();
+  nextTile.dataset.state = 'active';
+  nextTile.textContent = key;
+}
+
+function deleteKey() {
+  const activeTiles = getActiveTiles();
+  const lastTile = activeTiles[activeTiles.length - 1];
+  if (lastTile == null) return;
+
+  lastTile.textContent = '';
+  delete lastTile.dataset.state;
+  delete lastTile.dataset.letter;
+}
+
+function getActiveTiles() {
+  return guessGrid.querySelectorAll('[data-state="active"]');
+}
+
+startInteraction();
