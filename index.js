@@ -1,9 +1,11 @@
 // 5 letter words accepted by the application
-//import dictionary from './dictionary.json';
+import dictionary from './dictionary.json' assert { type: 'json' };
 // Daily 5 letter words for the application
-//import targetWords from './targetWords.json';
+import targetWords from './targetWords.json' assert { type: 'json' };
+
 const WORD_LENGTH = 5;
 const guessGrid = document.querySelector('[data-guess-grid]');
+const dailyWord = getDailyWord();
 
 function startInteraction() {
   document.addEventListener('click', handleMouseClick);
@@ -13,6 +15,13 @@ function startInteraction() {
 function stopInteraction() {
   document.removeEventListener('click', handleMouseClick);
   document.removeEventListener('keydown', handleKeyPress);
+}
+
+function getDailyWord() {
+  const offsetFromDate = new Date(2022, 0, 1);
+  const msOffset = Date.now() - offsetFromDate;
+  const dayOffset = msOffset / 1000 / 60 / 60 / 24;
+  return targetWords[Math.floor(dayOffset)];
 }
 
 // handles the mouse clicking down on our virtual keyboard in our application
@@ -55,25 +64,45 @@ function handleKeyPress(e) {
 }
 
 function pressKey(key) {
+  // key press handler for a letter
   const activeTiles = getActiveTiles();
+  // word can only be 5 letters, cannot exceed it
   if (activeTiles.length >= WORD_LENGTH) return;
+  //selects next tile that does not have an user inputted letter
   const nextTile = guessGrid.querySelector(':not([data-letter])');
+
+  // adds it to data object
   nextTile.dataset.letter = key.toLowerCase();
   nextTile.dataset.state = 'active';
   nextTile.textContent = key;
 }
 
 function deleteKey() {
+  // delete key press handler
   const activeTiles = getActiveTiles();
   const lastTile = activeTiles[activeTiles.length - 1];
+  // empty user input
   if (lastTile == null) return;
 
+  // resetting text content and removing state and letter form data object
   lastTile.textContent = '';
   delete lastTile.dataset.state;
   delete lastTile.dataset.letter;
 }
 
+function submitGuess() {
+  // convert querySelectorAll obj to an array
+  const activeTiles = [...getActiveTiles()];
+  // word is not long enough
+  if (activeTiles.length !== WORD_LENGTH) {
+    showAlert('Not enough letters');
+    shakeTiles(activeTiles);
+    return;
+  }
+}
+
 function getActiveTiles() {
+  // returns all blocks in guess grid with active state (user typed letters)
   return guessGrid.querySelectorAll('[data-state="active"]');
 }
 
