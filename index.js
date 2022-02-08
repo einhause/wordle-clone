@@ -85,8 +85,8 @@ function handleKeyPress(e) {
   }
 
   // a letter key was pressed
-  if (e.key.match(/^[a-z]$/)) {
-    pressKey(e.key);
+  if (e.key.match(/^[a-z]$/i)) {
+    pressKey(e.key.toLowerCase());
     return;
   }
 }
