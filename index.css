@@ -1,0 +1,58 @@
+/* --------------------- */
+/* Reset */
+/* --------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(240 3% 7%);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1em;
+  font-size: clamp(0.5rem, 2.5vmin, 1.5rem);
+}
+
+/* --------------------- */
+/* Key and Keyboard */
+/* --------------------- */
+
+.key {
+  font: inherit;
+  grid-column: span 2;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: hsl(200 1% 51%);
+  color: white;
+  fill: white;
+  text-transform: uppercase;
+  border: 0.25em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.key.large {
+  grid-column: span 3;
+}
+
+.key > svg {
+  width: 1.75em;
+  height: 1.75em;
+}
+
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(20, minmax(auto, 1.25em));
+  grid-auto-rows: 3em;
+  gap: 0.25em;
+  justify-content: center;
+}
