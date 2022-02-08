@@ -3,15 +3,38 @@ import dictionary from './dictionary.json' assert { type: 'json' };
 // Daily 5 letter words for the application
 import targetWords from './targetWords.json' assert { type: 'json' };
 
+/* 
+========================
+  GAME CONFIG
+=======================
+*/
+
+// constants used throughout application
 const WORD_LENGTH = 5;
 const FLIP_ANIMATION_DURATION = 500;
 const DANCE_ANIMATION_DURATION = 500;
 
+// query selectors
 const guessGrid = document.querySelector('[data-guess-grid]');
 const alertContainer = document.querySelector('[data-alert-container]');
 const keyboard = document.querySelector('[data-keyboard]');
 
+// the daily word to solve, from Wordle json file
 const dailyWord = getDailyWord();
+
+// get daily word from targetWords array
+function getDailyWord() {
+  const offsetFromDate = new Date(2022, 0, 1);
+  const msOffset = Date.now() - offsetFromDate;
+  const dayOffset = msOffset / 1000 / 60 / 60 / 24;
+  return targetWords[Math.floor(dayOffset)];
+}
+
+/* 
+========================
+  GAME STATE EVENT LISTENERS
+=======================
+*/
 
 function startInteraction() {
   document.addEventListener('click', handleMouseClick);
@@ -23,12 +46,11 @@ function stopInteraction() {
   document.removeEventListener('keydown', handleKeyPress);
 }
 
-function getDailyWord() {
-  const offsetFromDate = new Date(2022, 0, 1);
-  const msOffset = Date.now() - offsetFromDate;
-  const dayOffset = msOffset / 1000 / 60 / 60 / 24;
-  return targetWords[Math.floor(dayOffset)];
-}
+/* 
+========================
+  KEY PRESS LOGIC
+=======================
+*/
 
 // handles the mouse clicking down on our virtual keyboard in our application
 function handleMouseClick(e) {
@@ -96,6 +118,17 @@ function deleteKey() {
   delete lastTile.dataset.letter;
 }
 
+function getActiveTiles() {
+  // returns all blocks in guess grid with active state (user typed letters)
+  return guessGrid.querySelectorAll('[data-state="active"]');
+}
+
+/* 
+========================
+  WORD GUESSING LOGIC
+=======================
+*/
+
 function submitGuess() {
   // convert querySelectorAll obj to an array
   const activeTiles = [...getActiveTiles()];
@@ -160,41 +193,6 @@ function flipTiles(tile, index, array, guess) {
   );
 }
 
-function showAlert(message, duration = 1000) {
-  const alert = document.createElement('div');
-  alert.textContent = message;
-  alert.classList.add('alert');
-  alertContainer.prepend(alert);
-
-  if (duration == null) return;
-
-  setTimeout(() => {
-    alert.classList.add('hide');
-    alert.addEventListener('transitionend', () => {
-      alert.remove();
-    });
-  }, duration);
-}
-
-function shakeTiles(tiles) {
-  tiles.forEach((tile) => {
-    // idea : adding to classlist, on animation end, removing shake, common practice for css animations
-    tile.classList.add('shake');
-    tile.addEventListener(
-      'animationend',
-      () => {
-        tile.classList.remove('shake');
-      },
-      { once: true }
-    );
-  });
-}
-
-function getActiveTiles() {
-  // returns all blocks in guess grid with active state (user typed letters)
-  return guessGrid.querySelectorAll('[data-state="active"]');
-}
-
 function checkWinOrLose(guess, tiles) {
   if (guess === dailyWord) {
     showAlert('You Win!', 5000);
@@ -211,6 +209,48 @@ function checkWinOrLose(guess, tiles) {
   }
 }
 
+/* 
+========================
+  ALERT LOGIC
+=======================
+*/
+
+function showAlert(message, duration = 1000) {
+  const alert = document.createElement('div');
+  alert.textContent = message;
+  alert.classList.add('alert');
+  alertContainer.prepend(alert);
+
+  if (duration == null) return;
+
+  setTimeout(() => {
+    alert.classList.add('hide');
+    alert.addEventListener('transitionend', () => {
+      alert.remove();
+    });
+  }, duration);
+}
+
+/* 
+========================
+  ANIMATIONS
+=======================
+*/
+
+function shakeTiles(tiles) {
+  tiles.forEach((tile) => {
+    // idea : adding to classlist, on animation end, removing shake, common practice for css animations
+    tile.classList.add('shake');
+    tile.addEventListener(
+      'animationend',
+      () => {
+        tile.classList.remove('shake');
+      },
+      { once: true }
+    );
+  });
+}
+
 function danceTiles(tiles) {
   tiles.forEach((tile, index) => {
     setTimeout(() => {
@@ -225,5 +265,11 @@ function danceTiles(tiles) {
     }, (index * DANCE_ANIMATION_DURATION) / 5);
   });
 }
+
+/* 
+========================
+  INIT GAME
+=======================
+*/
 
 startInteraction();
