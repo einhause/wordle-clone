@@ -110,6 +110,7 @@ body {
   justify-content: center;
   align-items: center;
   user-select: none;
+  transition: transform 250ms linear;
 }
 
 /* Dynamic border/bg color changing for tile data states */
@@ -136,7 +137,7 @@ body {
 }
 
 .tile.flip {
-  background: red;
+  transform: rotateX(90deg);
 }
 
 @keyframes shake {

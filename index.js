@@ -128,6 +128,10 @@ function flipTiles(tile, index, array, guess) {
   setTimeout(() => {
     tile.classList.add('flip');
   }, (index * FLIP_ANIMATION_DURATION) / 2);
+
+  tile.addEventListener('transitionend', () => {
+    tile.classList.remove('flip');
+  });
 }
 
 function showAlert(message, duration = 1000) {
