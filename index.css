@@ -130,9 +130,13 @@ body {
   background-color: hsl(115 29% 43%);
 }
 
-/* tile shake animation */
+/* tile animations */
 .tile.shake {
   animation: shake 250ms ease-in-out;
+}
+
+.tile.flip {
+  background: red;
 }
 
 @keyframes shake {

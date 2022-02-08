@@ -4,9 +4,11 @@ import dictionary from './dictionary.json' assert { type: 'json' };
 import targetWords from './targetWords.json' assert { type: 'json' };
 
 const WORD_LENGTH = 5;
+const FLIP_ANIMATION_DURATION = 500;
 
 const guessGrid = document.querySelector('[data-guess-grid]');
 const alertContainer = document.querySelector('[data-alert-container]');
+const keyboard = document.querySelector('[data-keyboard]');
 
 const dailyWord = getDailyWord();
 
@@ -102,6 +104,30 @@ function submitGuess() {
     shakeTiles(activeTiles);
     return;
   }
+
+  // reduce tile blocks to a single string of the word
+  const guess = activeTiles.reduce(
+    (word, tile) => word + tile.dataset.letter,
+    ''
+  );
+
+  if (!dictionary.includes(guess)) {
+    showAlert('Not in word list');
+    shakeTiles(activeTiles);
+    return;
+  }
+
+  stopInteraction();
+  activeTiles.forEach((...params) => flipTiles(...params, guess));
+}
+
+function flipTiles(tile, index, array, guess) {
+  const letter = tile.dataset.letter;
+  const key = keyboard.querySelector(`[data-key="${letter}"]`);
+
+  setTimeout(() => {
+    tile.classList.add('flip');
+  }, (index * FLIP_ANIMATION_DURATION) / 2);
 }
 
 function showAlert(message, duration = 1000) {
@@ -122,6 +148,7 @@ function showAlert(message, duration = 1000) {
 
 function shakeTiles(tiles) {
   tiles.forEach((tile) => {
+    // idea : adding to classlist, on animation end, removing shake, common practice for css animations
     tile.classList.add('shake');
     tile.addEventListener(
       'animationend',
