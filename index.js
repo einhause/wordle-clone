@@ -5,6 +5,7 @@ import targetWords from './targetWords.json' assert { type: 'json' };
 
 const WORD_LENGTH = 5;
 const FLIP_ANIMATION_DURATION = 500;
+const DANCE_ANIMATION_DURATION = 500;
 
 const guessGrid = document.querySelector('[data-guess-grid]');
 const alertContainer = document.querySelector('[data-alert-container]');
@@ -192,6 +193,37 @@ function shakeTiles(tiles) {
 function getActiveTiles() {
   // returns all blocks in guess grid with active state (user typed letters)
   return guessGrid.querySelectorAll('[data-state="active"]');
+}
+
+function checkWinOrLose(guess, tiles) {
+  if (guess === dailyWord) {
+    showAlert('You Win!', 5000);
+    danceTiles(tiles);
+    stopInteraction();
+    return;
+  }
+
+  const remainingTiles = guessGrid.querySelectorAll(':not([data-letter])');
+
+  if (remainingTiles.length === 0) {
+    showAlert(dailyWord.toUpperCase(), null);
+    stopInteraction();
+  }
+}
+
+function danceTiles(tiles) {
+  tiles.forEach((tile, index) => {
+    setTimeout(() => {
+      tile.classList.add('dance');
+      tile.addEventListener(
+        'animationend',
+        () => {
+          tile.classList.remove('dance');
+        },
+        { once: true }
+      );
+    }, (index * DANCE_ANIMATION_DURATION) / 5);
+  });
 }
 
 startInteraction();
