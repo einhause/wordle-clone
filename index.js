@@ -120,6 +120,19 @@ function showAlert(message, duration = 1000) {
   }, duration);
 }
 
+function shakeTiles(tiles) {
+  tiles.forEach((tile) => {
+    tile.classList.add('shake');
+    tile.addEventListener(
+      'animationend',
+      () => {
+        tile.classList.remove('shake');
+      },
+      { once: true }
+    );
+  });
+}
+
 function getActiveTiles() {
   // returns all blocks in guess grid with active state (user typed letters)
   return guessGrid.querySelectorAll('[data-state="active"]');
