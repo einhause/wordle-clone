@@ -4,7 +4,10 @@ import dictionary from './dictionary.json' assert { type: 'json' };
 import targetWords from './targetWords.json' assert { type: 'json' };
 
 const WORD_LENGTH = 5;
+
 const guessGrid = document.querySelector('[data-guess-grid]');
+const alertContainer = document.querySelector('[data-alert-container]');
+
 const dailyWord = getDailyWord();
 
 function startInteraction() {
@@ -99,6 +102,22 @@ function submitGuess() {
     shakeTiles(activeTiles);
     return;
   }
+}
+
+function showAlert(message, duration = 1000) {
+  const alert = document.createElement('div');
+  alert.textContent = message;
+  alert.classList.add('alert');
+  alertContainer.prepend(alert);
+
+  if (duration == null) return;
+
+  setTimeout(() => {
+    alert.classList.add('hide');
+    alert.addEventListener('transitionend', () => {
+      alert.remove();
+    });
+  }, duration);
 }
 
 function getActiveTiles() {
