@@ -31,7 +31,8 @@ const wrongLettersGuessed = new Set();
 
 // get daily word from targetWords array
 function getDailyWord() {
-  const offsetFromDate = new Date(2022, 0, 1);
+  // first day of production, will start from top of targetWords
+  const offsetFromDate = new Date(2022, 1, 8);
   const msOffset = Date.now() - offsetFromDate;
   const dayOffset = msOffset / 1000 / 60 / 60 / 24;
   return targetWords[Math.floor(dayOffset)];
