@@ -45,12 +45,12 @@ function getDailyWord() {
 */
 
 function startInteraction() {
-  document.addEventListener('click', handleMouseClick);
+  document.addEventListener('touchstart', handleMouseClick);
   document.addEventListener('keydown', handleKeyPress);
 }
 
 function stopInteraction() {
-  document.removeEventListener('click', handleMouseClick);
+  document.removeEventListener('touchstart', handleMouseClick);
   document.removeEventListener('keydown', handleKeyPress);
 }
 
