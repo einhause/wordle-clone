@@ -40,17 +40,33 @@ function getDailyWord() {
 
 /* 
 ========================
+  Checking if mobile device
+=======================
+*/
+
+const isMobile =
+  'ontouchstart' in document.documentElement &&
+  navigator.userAgent.match(/Mobi/);
+
+/* 
+========================
   GAME STATE EVENT LISTENERS
 =======================
 */
 
 function startInteraction() {
-  document.addEventListener('touchstart', handleMouseClick);
+  document.addEventListener(
+    isMobile ? 'touchstart' : 'click',
+    handleMouseClick
+  );
   document.addEventListener('keydown', handleKeyPress);
 }
 
 function stopInteraction() {
-  document.removeEventListener('touchstart', handleMouseClick);
+  document.removeEventListener(
+    isMobile ? 'touchstart' : 'click',
+    handleMouseClick
+  );
   document.removeEventListener('keydown', handleKeyPress);
 }
 
