@@ -26,6 +26,8 @@ const dailyWordLetterCounts = getLetterCounts(dailyWord);
 
 // set of tracked words already guessed
 const alreadyGuessedWords = new Set();
+// set of wrong letters that were guessed
+const wrongLettersGuessed = new Set();
 
 // get daily word from targetWords array
 function getDailyWord() {
@@ -59,8 +61,8 @@ function stopInteraction() {
 
 // handles the mouse clicking down on our virtual keyboard in our application
 function handleMouseClick(e) {
-  // key that is not enter oefwr backspace
   if (e.target.matches('[data-key]')) {
+    // key that is not enter or backspace
     pressKey(e.target.dataset.key);
     return;
   }
@@ -102,6 +104,12 @@ function handleKeyPress(e) {
 function pressKey(key) {
   // key press handler for a letter
   const activeTiles = getActiveTiles();
+
+  if (wrongLettersGuessed.has(key.toLowerCase())) {
+    showAlert(`'${key.toUpperCase()}' is not in the word!`);
+    shakeTiles(activeTiles);
+    return;
+  }
 
   // word can only be 5 letters, cannot exceed it
   if (activeTiles.length >= WORD_LENGTH) return;
@@ -211,6 +219,7 @@ function flipTiles(tile, index, array, guess, guessLetterCounts) {
         if (guessLetterCounts[letter] > dailyWordLetterCounts[letter]) {
           tile.dataset.state = 'wrong';
           key.classList.add('wrong');
+          wrongLettersGuessed.add(letter);
         } else {
           tile.dataset.state = 'wrong-location';
           key.classList.add('wrong-location');
@@ -219,6 +228,7 @@ function flipTiles(tile, index, array, guess, guessLetterCounts) {
         // wrong letter and location
         tile.dataset.state = 'wrong';
         key.classList.add('wrong');
+        wrongLettersGuessed.add(letter);
       }
 
       // all tiles are filled in row, stop user input and check a win or loss
