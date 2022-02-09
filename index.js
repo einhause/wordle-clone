@@ -20,7 +20,8 @@ const alertContainer = document.querySelector('[data-alert-container]');
 const keyboard = document.querySelector('[data-keyboard]');
 
 // the daily word to solve, from Wordle json file
-const dailyWord = getDailyWord();
+//const dailyWord = getDailyWord();
+const dailyWord = 'those';
 
 // set of tracked words already guessed
 const alreadyGuessedWords = new Set();
@@ -55,7 +56,9 @@ function startInteraction() {
     isMobile ? 'touchstart' : 'click',
     handleMouseClick
   );
-  !isMobile && document.addEventListener('keydown', handleKeyPress);
+  if (!isMobile) {
+    document.addEventListener('keydown', handleKeyPress);
+  }
 }
 
 function stopInteraction() {
@@ -63,7 +66,9 @@ function stopInteraction() {
     isMobile ? 'touchstart' : 'click',
     handleMouseClick
   );
-  !isMobile && document.removeEventListener('keydown', handleKeyPress);
+  if (!isMobile) {
+    document.removeEventListener('keydown', handleKeyPress);
+  }
 }
 
 /* 
@@ -173,7 +178,7 @@ function submitGuess() {
   );
 
   // checks if the guess is a valid word in the dictionary
-  if (!dictionary.includes(guess)) {
+  if (!dictionary.includes(guess.toLowerCase())) {
     showAlert('Not in word list');
     shakeTiles(activeTiles);
     return;
@@ -189,6 +194,11 @@ function submitGuess() {
   stopInteraction();
 
   const correctLetters = new Set();
+
+  // iterate through all of the correct letters first and add them to the set
+  activeTiles.forEach((...params) =>
+    findCorrectLetters(...params, correctLetters)
+  );
 
   // flip tiles
   activeTiles.forEach((...params) =>
@@ -220,7 +230,6 @@ function flipTiles(tile, index, array, guess, correctLetters) {
         //correct letter and position
         tile.dataset.state = 'correct';
         key.classList.add('correct');
-        correctLetters.add(letter);
       } else if (dailyWord.includes(letter)) {
         // correct letter, wrong location
         if (correctLetters.has(letter)) {
@@ -250,6 +259,16 @@ function flipTiles(tile, index, array, guess, correctLetters) {
     },
     { once: true }
   );
+}
+
+function findCorrectLetters(tile, index, _, correctLetters) {
+  // letter from the tile
+  const letter = tile.dataset.letter;
+
+  if (dailyWord[index] === letter) {
+    correctLetters.add(letter);
+    return;
+  }
 }
 
 function checkWinOrLose(guess, tiles) {
