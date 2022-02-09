@@ -24,6 +24,9 @@ const dailyWord = getDailyWord();
 // get count of each of the letters of the dailyWord
 const dailyWordLetterCounts = getLetterCounts(dailyWord);
 
+// set of tracked words already guessed
+const alreadyGuessedWords = new Set();
+
 // get daily word from targetWords array
 function getDailyWord() {
   const offsetFromDate = new Date(2022, 0, 1);
@@ -163,6 +166,12 @@ function submitGuess() {
     return;
   }
 
+  if (alreadyGuessedWords.has(guess)) {
+    showAlert('This word was already guessed!');
+    shakeTiles(activeTiles);
+    return;
+  }
+
   // stop any user input
   stopInteraction();
 
@@ -170,6 +179,9 @@ function submitGuess() {
   activeTiles.forEach((...params) =>
     flipTiles(...params, guess, guessLetterCounts)
   );
+
+  // add word to already guessed words
+  alreadyGuessedWords.add(guess);
 }
 
 function flipTiles(tile, index, array, guess, guessLetterCounts) {
@@ -306,6 +318,7 @@ function danceTiles(tiles) {
   LETTER COUNT UTIL FUNCTION
 =======================
 */
+
 function getLetterCounts(word) {
   const counts = {};
   for (let char of word) {
