@@ -19,12 +19,17 @@ const guessGrid = document.querySelector('[data-guess-grid]');
 const alertContainer = document.querySelector('[data-alert-container]');
 const keyboard = document.querySelector('[data-keyboard]');
 
-// the daily word to solve, from Wordle json file
-//const dailyWord = getDailyWord();
-const dailyWord = 'those';
+// counts of the letters
+let dailyWordLetterCount = {};
+let guessWordLetterCount;
 
 // set of tracked words already guessed
 const alreadyGuessedWords = new Set();
+
+// the daily word to solve, from Wordle json file
+//const dailyWord = getDailyWord();
+const dailyWord = 'sissy';
+getLetterCounts(dailyWord, dailyWordLetterCount);
 
 // get daily word from targetWords array
 function getDailyWord() {
@@ -32,6 +37,7 @@ function getDailyWord() {
   const offsetFromDate = new Date(2022, 1, 9);
   const msOffset = Date.now() - offsetFromDate;
   const dayOffset = msOffset / 1000 / 60 / 60 / 24;
+
   return targetWords[Math.floor(dayOffset)];
 }
 
@@ -52,6 +58,9 @@ const isMobile =
 */
 
 function startInteraction() {
+  // clearing the correct letters set amd the guess letter count after each turn
+  guessWordLetterCount = {};
+
   document.addEventListener(
     isMobile ? 'touchstart' : 'click',
     handleMouseClick
@@ -177,6 +186,9 @@ function submitGuess() {
     ''
   );
 
+  // get letter counts of the guess
+  getLetterCounts(guess, guessWordLetterCount);
+
   // checks if the guess is a valid word in the dictionary
   if (!dictionary.includes(guess.toLowerCase())) {
     showAlert('Not in word list');
@@ -193,24 +205,14 @@ function submitGuess() {
   // stop any user input
   stopInteraction();
 
-  const correctLetters = new Set();
-
-  // iterate through all of the correct letters first and add them to the set
-  activeTiles.forEach((...params) =>
-    findCorrectLetters(...params, correctLetters)
-  );
-
   // flip tiles
-  activeTiles.forEach((...params) =>
-    flipTiles(...params, guess, correctLetters)
-  );
+  activeTiles.forEach((...params) => flipTiles(...params, guess));
 
   // add word to already guessed words
   alreadyGuessedWords.add(guess);
-  correctLetters.clear();
 }
 
-function flipTiles(tile, index, array, guess, correctLetters) {
+function flipTiles(tile, index, array, guess) {
   // letter from the tile
   const letter = tile.dataset.letter;
   // key on the keyboard
@@ -230,15 +232,13 @@ function flipTiles(tile, index, array, guess, correctLetters) {
         //correct letter and position
         tile.dataset.state = 'correct';
         key.classList.add('correct');
-      } else if (dailyWord.includes(letter)) {
+      } else if (
+        dailyWord.includes(letter) &&
+        guessWordLetterCount[letter] <= dailyWordLetterCount[letter]
+      ) {
         // correct letter, wrong location
-        if (correctLetters.has(letter)) {
-          tile.dataset.state = 'wrong';
-          key.classList.add('wrong');
-        } else {
-          tile.dataset.state = 'wrong-location';
-          key.classList.add('wrong-location');
-        }
+        tile.dataset.state = 'wrong-location';
+        key.classList.add('wrong-location');
       } else {
         // wrong letter and location
         tile.dataset.state = 'wrong';
@@ -259,16 +259,6 @@ function flipTiles(tile, index, array, guess, correctLetters) {
     },
     { once: true }
   );
-}
-
-function findCorrectLetters(tile, index, _, correctLetters) {
-  // letter from the tile
-  const letter = tile.dataset.letter;
-
-  if (dailyWord[index] === letter) {
-    correctLetters.add(letter);
-    return;
-  }
 }
 
 function checkWinOrLose(guess, tiles) {
@@ -345,6 +335,18 @@ function danceTiles(tiles) {
       );
     }, (index * DANCE_ANIMATION_DURATION) / 5);
   });
+}
+
+/* 
+========================
+  LETTER COUNT UTIL FUNCTION
+=======================
+*/
+
+function getLetterCounts(word, countObj) {
+  for (let char of word) {
+    countObj[char] = countObj.hasOwnProperty(char) ? ++countObj[char] : 1;
+  }
 }
 
 /* 
