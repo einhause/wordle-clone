@@ -1,4 +1,4 @@
-### Link:
+### Link: https://wordle-clone-einhause.netlify.app/
 
 # Wordle Clone
 
