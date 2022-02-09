@@ -21,18 +21,14 @@ const keyboard = document.querySelector('[data-keyboard]');
 
 // the daily word to solve, from Wordle json file
 const dailyWord = getDailyWord();
-// get count of each of the letters of the dailyWord
-const dailyWordLetterCounts = getLetterCounts(dailyWord);
 
 // set of tracked words already guessed
 const alreadyGuessedWords = new Set();
-// set of wrong letters that were guessed
-const wrongLettersGuessed = new Set();
 
 // get daily word from targetWords array
 function getDailyWord() {
   // first day of production, will start from top of targetWords
-  const offsetFromDate = new Date(2022, 1, 8);
+  const offsetFromDate = new Date(2022, 1, 9);
   const msOffset = Date.now() - offsetFromDate;
   const dayOffset = msOffset / 1000 / 60 / 60 / 24;
   return targetWords[Math.floor(dayOffset)];
@@ -59,7 +55,7 @@ function startInteraction() {
     isMobile ? 'touchstart' : 'click',
     handleMouseClick
   );
-  document.addEventListener('keydown', handleKeyPress);
+  !isMobile && document.addEventListener('keydown', handleKeyPress);
 }
 
 function stopInteraction() {
@@ -67,7 +63,7 @@ function stopInteraction() {
     isMobile ? 'touchstart' : 'click',
     handleMouseClick
   );
-  document.removeEventListener('keydown', handleKeyPress);
+  !isMobile && document.removeEventListener('keydown', handleKeyPress);
 }
 
 /* 
@@ -121,12 +117,6 @@ function handleKeyPress(e) {
 function pressKey(key) {
   // key press handler for a letter
   const activeTiles = getActiveTiles();
-
-  if (wrongLettersGuessed.has(key.toLowerCase())) {
-    showAlert(`'${key.toUpperCase()}' is not in the word!`);
-    shakeTiles(activeTiles);
-    return;
-  }
 
   // word can only be 5 letters, cannot exceed it
   if (activeTiles.length >= WORD_LENGTH) return;
@@ -182,8 +172,6 @@ function submitGuess() {
     ''
   );
 
-  const guessLetterCounts = getLetterCounts(guess);
-
   // checks if the guess is a valid word in the dictionary
   if (!dictionary.includes(guess)) {
     showAlert('Not in word list');
@@ -200,16 +188,19 @@ function submitGuess() {
   // stop any user input
   stopInteraction();
 
+  const correctLetters = new Set();
+
   // flip tiles
   activeTiles.forEach((...params) =>
-    flipTiles(...params, guess, guessLetterCounts)
+    flipTiles(...params, guess, correctLetters)
   );
 
   // add word to already guessed words
   alreadyGuessedWords.add(guess);
+  correctLetters.clear();
 }
 
-function flipTiles(tile, index, array, guess, guessLetterCounts) {
+function flipTiles(tile, index, array, guess, correctLetters) {
   // letter from the tile
   const letter = tile.dataset.letter;
   // key on the keyboard
@@ -229,14 +220,12 @@ function flipTiles(tile, index, array, guess, guessLetterCounts) {
         //correct letter and position
         tile.dataset.state = 'correct';
         key.classList.add('correct');
+        correctLetters.add(letter);
       } else if (dailyWord.includes(letter)) {
         // correct letter, wrong location
-
-        // check for duplicates
-        if (guessLetterCounts[letter] > dailyWordLetterCounts[letter]) {
+        if (correctLetters.has(letter)) {
           tile.dataset.state = 'wrong';
           key.classList.add('wrong');
-          wrongLettersGuessed.add(letter);
         } else {
           tile.dataset.state = 'wrong-location';
           key.classList.add('wrong-location');
@@ -245,7 +234,6 @@ function flipTiles(tile, index, array, guess, guessLetterCounts) {
         // wrong letter and location
         tile.dataset.state = 'wrong';
         key.classList.add('wrong');
-        wrongLettersGuessed.add(letter);
       }
 
       // all tiles are filled in row, stop user input and check a win or loss
@@ -338,20 +326,6 @@ function danceTiles(tiles) {
       );
     }, (index * DANCE_ANIMATION_DURATION) / 5);
   });
-}
-
-/* 
-========================
-  LETTER COUNT UTIL FUNCTION
-=======================
-*/
-
-function getLetterCounts(word) {
-  const counts = {};
-  for (let char of word) {
-    counts[char] = counts.hasOwnProperty(char) ? ++counts[char] : 1;
-  }
-  return counts;
 }
 
 /* 
