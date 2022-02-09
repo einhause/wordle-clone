@@ -27,8 +27,7 @@ let guessWordLetterCount;
 const alreadyGuessedWords = new Set();
 
 // the daily word to solve, from Wordle json file
-//const dailyWord = getDailyWord();
-const dailyWord = 'sissy';
+const dailyWord = getDailyWord();
 getLetterCounts(dailyWord, dailyWordLetterCount);
 
 // get daily word from targetWords array
@@ -90,7 +89,7 @@ function stopInteraction() {
 function handleMouseClick(e) {
   if (e.target.matches('[data-key]')) {
     // key that is not enter or backspace
-    pressKey(e.target.dataset.key);
+    pressKey(e.target.dataset.key.toLowerCase());
     return;
   }
 
